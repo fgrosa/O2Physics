@@ -2563,5 +2563,5 @@ WorkflowSpec defineDataProcessing(ConfigContext const& cfgc)
   workflow.push_back(adaptAnalysisTask<HfTrackIndexSkimCreator>(cfgc));
   workflow.push_back(adaptAnalysisTask<HfTrackIndexSkimCreatorCascades>(cfgc));
 
-  return workflow;
+  return workflow; 
 }
