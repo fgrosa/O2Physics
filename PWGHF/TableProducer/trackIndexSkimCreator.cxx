@@ -2541,7 +2541,7 @@ struct HfTrackIndexSkimCreatorCascades {
           }
 
         } // loop over V0s
-      } // loop over tracks
+      }   // loop over tracks
     }
   } // process
   PROCESS_SWITCH(HfTrackIndexSkimCreatorCascades, processCascades, "Skim also cascades", false);
