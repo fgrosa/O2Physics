@@ -50,8 +50,8 @@ namespace hf_track_association
 {
 
 enum TrackType { Regular = 0,
-                  Ambiguous,
-                  PVContributor };
+                 Ambiguous,
+                 PVContributor };
 
 DECLARE_SOA_INDEX_COLUMN(Collision, collision); //! Collision index
 DECLARE_SOA_INDEX_COLUMN(Track, track);         //! Track index
