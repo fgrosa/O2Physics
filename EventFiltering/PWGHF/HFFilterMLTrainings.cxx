@@ -150,7 +150,6 @@ struct HfFilterMlTrainings { // Main struct for HF triggers
       auto trackThird = cand3Prong.prong2_as<BigTracksMCPID>();  // third daughter
       auto arrayDaughters = std::array{trackFirst, trackSecond, trackThird};
 
-
       auto trackParFirst = getTrackPar(trackFirst);
       auto trackParSecond = getTrackPar(trackSecond);
       auto trackParThird = getTrackPar(trackThird);
