@@ -82,7 +82,7 @@ struct HfCandidateCreator3Prong {
     runNumber = 0;
   }
 
-  template<bool doPvRefit = false, typename Cand>
+  template <bool doPvRefit = false, typename Cand>
   void runCreator3Prong(aod::Collisions const& collisions, Cand const& rowsTrackIndexProng3, aod::BigTracks const& tracks, aod::BCsWithTimestamps const& bcWithTimeStamps)
   {
     // 3-prong vertex fitter
@@ -229,7 +229,6 @@ struct HfCandidateCreator3Prong {
   }
 
   PROCESS_SWITCH(HfCandidateCreator3Prong, processNoPvRefit, "Run candidate creator without PV refit", true);
-
 };
 
 /// Extends the base table with expression columns.
