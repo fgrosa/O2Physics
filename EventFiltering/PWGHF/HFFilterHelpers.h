@@ -219,11 +219,6 @@ class HfFilterHelper
   /// Default constructor
   HfFilterHelper() = default;
 
-  // PID
-  std::vector<double> setValuesBB(o2::ccdb::CcdbApi& ccdbApi, aod::BCsWithTimestamps::iterator const& bunchCrossing, const std::string ccdbPath);
-  template <typename T, typename H3>
-  float getTPCPostCalib(const array<H3, 2>& hCalibMap, const T& track, const int pidSpecies)
-
   // selections
   template <typename T, typename T1, typename T2, typename T3, typename T4>
   int8_t isSelectedTrackForSoftPionOrBeauty(const T track, const T1& trackPar, const T2& dca, const float& pTMinSoftPion, const float& pTMinBeautyBachelor, const T3& pTBinsTrack, const T4& cutsSingleTrackBeauty)
@@ -264,11 +259,15 @@ class HfFilterHelper
   template <typename T>
   int computeNumberOfCandidates(std::vector<std::vector<T>> indices)
 
-  // ML
-  Ort::Experimental::Session* InitONNXSession(std::string& onnxFile, std::string partName, Ort::Env& env, Ort::SessionOptions& sessionOpt, std::vector<std::vector<int64_t>>& inputShapes, int& dataType, bool loadModelsFromCCDB, o2::ccdb::CcdbApi& ccdbApi, std::string mlModelPathCCDB, int64_t timestampCCDB)
-  template <typename T>
-  std::array<T, 3> PredictONNX(std::vector<T>& inputFeatures, std::shared_ptr<Ort::Experimental::Session>& session, std::vector<std::vector<int64_t>>& inputShapes)
+  // PID
+  std::vector<double> setValuesBB(o2::ccdb::CcdbApi& ccdbApi, aod::BCsWithTimestamps::iterator const& bunchCrossing, const std::string ccdbPath);
 
+  // ML
+  Ort::Experimental::Session* initONNXSession(std::string& onnxFile, std::string partName, Ort::Env& env, Ort::SessionOptions& sessionOpt, std::vector<std::vector<int64_t>>& inputShapes, int& dataType, bool loadModelsFromCCDB, o2::ccdb::CcdbApi& ccdbApi, std::string mlModelPathCCDB, int64_t timestampCCDB)
+  template <typename T>
+  std::array<T, 3> predictONNX(std::vector<T>& inputFeatures, std::shared_ptr<Ort::Experimental::Session>& session, std::vector<std::vector<int64_t>>& inputShapes)
+
+<<<<<<< HEAD
   private:
     // PID
     template <typename T>
@@ -1039,343 +1038,24 @@ bool isSelectedCascade(const Casc& casc, const V0& v0, const array<T, 3>& dauTra
   if (std::fabs(casc.mLambda() - massLambda) > deltaMassLambda) {
     return false;
   }
+=======
+ private:
+  // selections
+  template <typename T, typename H3>
+  bool isSelectedKaon4Charm3Prong(const T& track, const float& nsigmaTPCKaon3Prong, const float& nsigmaTOFKaon3Prong, const int setTPCCalib, H3 hMapKaon, const std::array<std::vector<double>, 2>& hSplineKaon)
+>>>>>>> dc1de441 (Another small step)
 
   // PID
-  float nSigmaPrTpc[3] = {-999., dauTracks[1].tpcNSigmaPr(), dauTracks[2].tpcNSigmaPr()};
-  float nSigmaPrTof[3] = {-999., dauTracks[1].tofNSigmaPr(), dauTracks[2].tofNSigmaPr()};
-  float nSigmaPiTpc[3] = {dauTracks[0].tpcNSigmaPi(), dauTracks[1].tpcNSigmaPi(), dauTracks[2].tpcNSigmaPi()};
-  float nSigmaPiTof[3] = {dauTracks[0].tofNSigmaPi(), dauTracks[1].tofNSigmaPi(), dauTracks[2].tofNSigmaPi()};
-  if (setTPCCalib == 1) {
-    for (int iDau{0}; iDau < 3; ++iDau) {
-      nSigmaPiTpc[iDau] = getTPCPostCalib(hMapPion, dauTracks[iDau], kPi);
-      if (iDau == 0) {
-        continue;
-      }
-      nSigmaPrTpc[iDau] = getTPCPostCalib(hMapProton, dauTracks[iDau], kPr);
-    }
-  } else if (setTPCCalib == 2) {
-    for (int iDau{0}; iDau < 3; ++iDau) {
-      nSigmaPiTpc[iDau] = getTPCSplineCalib(dauTracks[iDau], massPi, (dauTracks[iDau].sign() > 0) ? hSplinePion[0] : hSplinePion[1]);
-      if (iDau == 0) {
-        continue;
-      }
-      nSigmaPrTpc[iDau] = getTPCSplineCalib(dauTracks[iDau], massProton, (dauTracks[iDau].sign() > 0) ? hSplineProton[0] : hSplineProton[1]);
-    }
-  }
+  template <typename T>
+  double getTPCSplineCalib(const T& track, const float mMassPar, const std::vector<double> paraBetheBloch);
+  template <typename T, typename H3>
+  float getTPCPostCalib(const array<H3, 2>& hCalibMap, const T& track, const int pidSpecies)
 
-  // PID to V0 tracks
-  if (dauTracks[0].sign() < 0) { // Xi-
-    if ((dauTracks[1].hasTPC() && std::fabs(nSigmaPrTpc[1]) > maxNsigma) && (dauTracks[1].hasTOF() && std::fabs(nSigmaPrTof[1]) > maxNsigma)) {
-      return false;
-    }
-    if ((dauTracks[2].hasTPC() && std::fabs(nSigmaPiTpc[2]) > maxNsigma) && (dauTracks[2].hasTOF() && std::fabs(nSigmaPiTof[2]) > maxNsigma)) {
-      return false;
-    }
-  } else if (dauTracks[0].sign() > 0) { // Xi+
-    if ((dauTracks[2].hasTPC() && std::fabs(nSigmaPrTpc[2]) > maxNsigma) && (dauTracks[2].hasTOF() && std::fabs(nSigmaPrTof[2]) > maxNsigma)) {
-      return false;
-    }
-    if ((dauTracks[1].hasTPC() && std::fabs(nSigmaPiTpc[1]) > maxNsigma) && (dauTracks[1].hasTOF() && std::fabs(nSigmaPiTof[1]) > maxNsigma)) {
-      return false;
-    }
-  }
-
-  // bachelor PID
-  if ((dauTracks[0].hasTPC() && std::fabs(nSigmaPiTpc[0]) > maxNsigma) && (dauTracks[0].hasTOF() && std::fabs(nSigmaPiTof[0]) > maxNsigma)) {
-    return false;
-  }
-
-  // additional track cuts
-  for (auto const& dauTrack : dauTracks) {
-    //  TPC clusters selections
-    if (dauTrack.tpcNClsFound() < 70) { // TODO: put me as a configurable please
-      return false;
-    }
-    if (dauTrack.tpcNClsCrossedRows() < 70) {
-      return false;
-    }
-    if (dauTrack.tpcCrossedRowsOverFindableCls() < 0.8) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-/// Single-track cuts for bachelor track of charm baryon candidates
-/// \param track is a track
-/// \param dca is the 2d array with dcaXY and dcaZ of the track
-/// \param minPt is the minimum pT
-/// \param pTBinsTrack pt bins for DCA cuts
-/// \param cutsSingleTrack cuts for all tracks
-/// \param maxNsigmaTPC is the maximum nSigma TPC for pions and kaons
-/// \param maxNsigmaTOF is the maximum nSigma TOF for pions and kaons
-/// \param setTPCCalib flag to activate TPC PID postcalibrations
-/// \param hMapPion map of nSigma mean and sigma calibrations for pion
-/// \param hSplinePion spline of pion and anti-pion calibrations
-/// \param hSplineKaon spline of kaon and anti-kaon calibrations
-/// \return 0 if rejected, or a bitmap that contains the information whether it is selected as pion and/or kaon
-template <typename T, typename T2, typename T3, typename T4, typename H3>
-int8_t isSelectedBachelorForCharmBaryon(const T& track, const T2& dca, const float& minPt, const T3& pTBinsTrack, const T4& cutsSingleTrack, const float& maxNsigmaTPC, const float& maxNsigmaTOF, const int& setTPCCalib, H3 hMapPion, const std::array<std::vector<double>, 2>& hSplinePion, const std::array<std::vector<double>, 2>& hSplineKaon)
-{
-  int8_t retValue{BIT(kPionForCharmBaryon) | BIT(kKaonForCharmBaryon)};
-
-  if (!track.isGlobalTrackWoDCA()) {
-    return kRejected;
-  }
-
-  if (track.pt() < minPt) {
-    return kRejected;
-  }
-
-  auto pTBinTrack = findBin(pTBinsTrack, track.pt());
-  if (pTBinTrack == -1) {
-    return kRejected;
-  }
-
-  if (std::fabs(dca[0]) < cutsSingleTrack.get(pTBinTrack, 0u)) {
-    return kRejected; // minimum DCAxy
-  }
-  if (std::fabs(dca[0]) > cutsSingleTrack.get(pTBinTrack, 1u)) {
-    return kRejected; // maximum DCAxy
-  }
-
-  if (std::fabs(dca[1]) > 2.f) {
-    return kRejected; // maximum DCAz
-  }
-
-  if (track.tpcNClsFound() < 70) {
-    return kRejected;
-  }
-
-  if (track.itsNCls() < 3) {
-    return kRejected;
-  }
-
-  float nSigmaPiTpc = track.tpcNSigmaPi();
-  float nSigmaKaTpc = track.tpcNSigmaKa();
-  float nSigmaPiTof = track.tofNSigmaPi();
-  float nSigmaKaTof = track.tofNSigmaKa();
-  if (setTPCCalib == 1) {
-    nSigmaPiTpc = getTPCPostCalib(hMapPion, track, kPi);
-    nSigmaKaTpc = getTPCPostCalib(hMapPion, track, kKa);
-  } else if (setTPCCalib == 2) {
-    nSigmaPiTpc = getTPCSplineCalib(track, massPi, (track.sign() > 0) ? hSplinePion[0] : hSplinePion[1]);
-    nSigmaKaTpc = getTPCSplineCalib(track, massK, (track.sign() > 0) ? hSplineKaon[0] : hSplineKaon[1]);
-  }
-
-  if ((track.hasTPC() && std::fabs(nSigmaPiTpc) > maxNsigmaTPC) && (track.hasTOF() && std::fabs(nSigmaPiTof) > maxNsigmaTOF)) {
-    CLRBIT(retValue, kPionForCharmBaryon);
-  }
-  if ((track.hasTPC() && std::fabs(nSigmaKaTpc) > maxNsigmaTPC) && (track.hasTOF() && std::fabs(nSigmaKaTof) > maxNsigmaTOF)) {
-    CLRBIT(retValue, kKaonForCharmBaryon);
-  }
-
-  return retValue;
-}
-
-/// BDT selections
-/// \param scores is a 3-element array with BDT out scores
-/// \param thresholdBDTScores is the LabelledArray containing the BDT cut values
-/// \return 0 if rejected, otherwise bitmap with BIT(RecoDecay::OriginType::Prompt) and/or BIT(RecoDecay::OriginType::NonPrompt) on
-template <typename T, typename U>
-int8_t isBDTSelected(const T& scores, const U& thresholdBDTScores)
-{
-  int8_t retValue = 0;
-  if (scores.size() < 3) {
-    return retValue;
-  }
-
-  if (scores[0] > thresholdBDTScores.get(0u, 0u)) {
-    return retValue;
-  }
-  if (scores[1] > thresholdBDTScores.get(0u, 1u)) {
-    retValue |= BIT(RecoDecay::OriginType::Prompt);
-  }
-  if (scores[2] > thresholdBDTScores.get(0u, 2u)) {
-    retValue |= BIT(RecoDecay::OriginType::NonPrompt);
-  }
-
-  return retValue;
-}
-
-/// Computation of the relative momentum between particle pairs
-/// \param pTrack is the track momentum array
-/// \param ProtonMass is the mass of a proton
-/// \param CharmCandMomentum is the three momentum of a charm candidate
-/// \param CharmMass is the mass of the charm hadron
-/// \return relative momentum of pair
-template <typename T>
-T computeRelativeMomentum(const std::array<T, 3>& pTrack, const std::array<T, 3>& CharmCandMomentum, const T& CharmMass)
-{
-  ROOT::Math::PxPyPzMVector part1(pTrack[0], pTrack[1], pTrack[2], massProton);
-  ROOT::Math::PxPyPzMVector part2(CharmCandMomentum[0], CharmCandMomentum[1], CharmCandMomentum[2], CharmMass);
-
-  ROOT::Math::PxPyPzMVector trackSum = part1 + part2;
-  ROOT::Math::Boost boostv12{trackSum.BoostToCM()};
-  ROOT::Math::PxPyPzMVector part1CM = boostv12(part1);
-  ROOT::Math::PxPyPzMVector part2CM = boostv12(part2);
-  ROOT::Math::PxPyPzMVector trackRelK = part1CM - part2CM;
-
-  T kStar = 0.5 * trackRelK.P();
-  return kStar;
-} // float computeRelativeMomentum(const T& track, const std::array<float, 3>& CharmCandMomentum, const float& CharmMass)
-
-/// Computation of the number of candidates in an event that do not share daughter tracks
-/// \return 0 or 1 in case of less than 2 independent candidates in a single event, 2 otherwise
-template <typename T>
-int computeNumberOfCandidates(std::vector<std::vector<T>> indices)
-{
-  if (indices.size() < 2) {
-    return indices.size();
-  }
-
-  std::vector<int> numIndependentCand{};
-  for (auto iCand{0u}; iCand < indices.size(); ++iCand) {
-    int nIndependent = 0;
-    for (auto iCandSecond{0u}; iCandSecond < indices.size(); ++iCandSecond) {
-      if (iCand == iCandSecond) {
-        continue;
-      } else {
-        bool hasOverlap = false;
-        for (auto idxFirst{0u}; idxFirst < indices[iCand].size(); ++idxFirst) {
-          for (auto idxSecond{0u}; idxSecond < indices[iCandSecond].size(); ++idxSecond) {
-            if (indices[iCand][idxFirst] == indices[iCandSecond][idxSecond]) {
-              hasOverlap = true;
-              break;
-            }
-          }
-        }
-        if (!hasOverlap) {
-          nIndependent++;
-        }
-      }
-    }
-    numIndependentCand.push_back(nIndependent);
-  }
-  std::sort(numIndependentCand.begin(), numIndependentCand.end());
-
-  if (numIndependentCand.back() == 0) {
-    return numIndependentCand.back();
-  }
-
-  return 2;
-}
-
-/// ML helper methods
-
-/// Iinitialisation of ONNX session
-/// \param onnxFile is the onnx file name
-/// \param partName is the particle name
-/// \param env is the ONNX environment
-/// \param sessionOpt is the ONNX session options
-/// \param inputShapes is the input shape
-/// \param dataType is the data type (1=float, 11=double)
-/// \param loadModelsFromCCDB is the flag to decide whether the ONNX file is read from CCDB or not
-/// \param ccdbApi is the CCDB API
-/// \param mlModelPathCCDB is the model path in CCDB
-/// \param timestampCCDB is the CCDB timestamp
-/// \return the pointer to the ONNX Ort::Experimental::Session
-Ort::Experimental::Session* InitONNXSession(std::string& onnxFile, std::string partName, Ort::Env& env, Ort::SessionOptions& sessionOpt, std::vector<std::vector<int64_t>>& inputShapes, int& dataType, bool loadModelsFromCCDB, o2::ccdb::CcdbApi& ccdbApi, std::string mlModelPathCCDB, int64_t timestampCCDB)
-{
-  // hard coded, we do not let the user change this
-  sessionOpt.SetIntraOpNumThreads(1);
-  sessionOpt.SetInterOpNumThreads(1);
-  Ort::Experimental::Session* session = nullptr;
-
-  std::map<std::string, std::string> metadata;
-  bool retrieveSuccess = true;
-  if (loadModelsFromCCDB) {
-    retrieveSuccess = ccdbApi.retrieveBlob(mlModelPathCCDB + partName, ".", metadata, timestampCCDB, false, onnxFile);
-  }
-  if (retrieveSuccess) {
-    session = new Ort::Experimental::Session{env, onnxFile, sessionOpt};
-    inputShapes = session->GetInputShapes();
-    if (inputShapes[0][0] < 0) {
-      LOGF(warning, Form("Model for %s with negative input shape likely because converted with hummingbird, setting it to 1.", partName.data()));
-      inputShapes[0][0] = 1;
-    }
-
-    Ort::TypeInfo typeInfo = session->GetInputTypeInfo(0);
-    auto tensorInfo = typeInfo.GetTensorTypeAndShapeInfo();
-    dataType = tensorInfo.GetElementType();
-  } else {
-    LOG(fatal) << "Error encountered while fetching/loading the ML model from CCDB! Maybe the ML model doesn't exist yet for this runnumber/timestamp?";
-  }
-
-  return session;
-}
-
-/// Iinitialisation of ONNX session
-/// \param inputFeatures is the vector with input features
-/// \param session is the ONNX Ort::Experimental::Session
-/// \param inputShapes is the input shape
-/// \return the array with the three output scores
-template <typename T>
-std::array<T, 3> PredictONNX(std::vector<T>& inputFeatures, std::shared_ptr<Ort::Experimental::Session>& session, std::vector<std::vector<int64_t>>& inputShapes)
-{
-  std::array<T, 3> scores{-1., 2., 2.};
-  std::vector<Ort::Value> inputTensor{};
-  inputTensor.push_back(Ort::Experimental::Value::CreateTensor<T>(inputFeatures.data(), inputFeatures.size(), inputShapes[0]));
-
-  // double-check the dimensions of the input tensor
-  if (inputTensor[0].GetTensorTypeAndShapeInfo().GetShape()[0] > 0) { // vectorial models can have negative shape if the shape is unknown
-    assert(inputTensor[0].IsTensor() && inputTensor[0].GetTensorTypeAndShapeInfo().GetShape() == inputShapes[0]);
-  }
-  try {
-    auto outputTensor = session->Run(session->GetInputNames(), inputTensor, session->GetOutputNames());
-    assert(outputTensor.size() == session->GetOutputNames().size() && outputTensor[1].IsTensor());
-    auto typeInfo = outputTensor[1].GetTensorTypeAndShapeInfo();
-    assert(typeInfo.GetElementCount() == 3); // we need multiclass
-    scores[0] = outputTensor[1].GetTensorMutableData<T>()[0];
-    scores[1] = outputTensor[1].GetTensorMutableData<T>()[1];
-    scores[2] = outputTensor[1].GetTensorMutableData<T>()[2];
-  } catch (const Ort::Exception& exception) {
-    LOG(error) << "Error running model inference: " << exception.what();
-  }
-
-  return scores;
-}
-
-/// PID postcalibrations
-
-/// compute TPC postcalibrated nsigma based on calibration histograms from CCDB
-/// \param hCalibMean calibration histograms of mean from CCDB
-/// \param hCalibSigma calibration histograms of sigma from CCDB
-/// \param track is the track
-/// \param pidSpecies is the PID species
-/// \return the corrected Nsigma value for the PID species
-template <typename T, typename H3>
-float getTPCPostCalib(const array<H3, 2>& hCalibMap, const T& track, const int pidSpecies)
-{
-  auto tpcNCls = track.tpcNClsFound();
-  auto tpcPin = track.tpcInnerParam();
-  auto eta = track.eta();
-  auto tpcNSigma = 0.;
-
-  if (pidSpecies == kKa) {
-    tpcNSigma = track.tpcNSigmaKa();
-  } else if (pidSpecies == kPi) {
-    tpcNSigma = track.tpcNSigmaPi();
-  } else if (pidSpecies == kPr) {
-    tpcNSigma = track.tpcNSigmaPr();
-  } else {
-    LOG(fatal) << "Wrong PID Species be selected, please check!";
-  }
-  auto binTPCNCls = hCalibMap[0]->GetXaxis()->FindBin(tpcNCls);
-  binTPCNCls = (binTPCNCls == 0 ? 1 : binTPCNCls);
-  binTPCNCls = std::min(hCalibMap[0]->GetXaxis()->GetNbins(), binTPCNCls);
-  auto binPin = hCalibMap[0]->GetYaxis()->FindBin(tpcPin);
-  binPin = (binPin == 0 ? 1 : binPin);
-  binPin = std::min(hCalibMap[0]->GetYaxis()->GetNbins(), binPin);
-  auto binEta = hCalibMap[0]->GetZaxis()->FindBin(eta);
-  binEta = (binEta == 0 ? 1 : binEta);
-  binEta = std::min(hCalibMap[0]->GetZaxis()->GetNbins(), binEta);
-
-  auto mean = hCalibMap[0]->GetBinContent(binTPCNCls, binPin, binEta);
-  auto width = hCalibMap[1]->GetBinContent(binTPCNCls, binPin, binEta);
-
-  return (tpcNSigma - mean) / width;
+  std::array<TH3F*, 2> mHistMapPion{nullptr, nullptr};    // Map for TPC PID postcalibrations for pions
+  std::array<TH3F*, 2> mHistMapProton{nullptr, nullptr};  // Map for TPC PID postcalibrations for protons
+  std::array<std::vector<double>, 2> mBetheBlochPion{};   // Bethe-Bloch parametrisations for pions and antipions in TPC
+  std::array<std::vector<double>, 2> mBetheBlochKaon{};   // Bethe-Bloch parametrisations for kaons and antikaons in TPC
+  std::array<std::vector<double>, 2> mBetheBlochProton{}; // Bethe-Bloch parametrisations for proton and antiprotons in TPC
 }
 
 } // namespace hffilters
