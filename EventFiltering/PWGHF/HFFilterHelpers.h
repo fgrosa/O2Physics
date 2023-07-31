@@ -41,6 +41,7 @@
 #include "Framework/DataTypes.h"
 #include "Framework/HistogramRegistry.h"
 #include "Framework/AnalysisHelpers.h"
+#include "Framework/O2DatabasePDGPlugin.h"
 
 #include "Common/Core/RecoDecay.h"
 #include "DataFormatsParameters/GRPMagField.h"
@@ -135,26 +136,6 @@ static const std::tuple pdgCharmDaughters{
   std::array{2212, -321, 211},  // Lc
   std::array{2212, -321, 211}}; // Xic
 
-static const float massPi = 0.13957;
-static const float massK = 0.493677;
-static const float massProton = 0.938272;
-static const float massPhi = 1.019455;
-static const float massD0 = 1.86484;
-static const float massDPlus = 1.86962;
-static const float massDs = 1.9685;
-static const float massLc = 2.28646;
-static const float massXic = 2.4679;
-static const float massDStar = 2.01027;
-static const float massBPlus = 5.27915;
-static const float massB0 = 5.27953;
-static const float massBs = 5.3663;
-static const float massLb = 5.6202;
-static const float massXib = 5.7924;
-static const float massGamma = 0.;
-static const float massK0S = 0.497614;
-static const float massLambda = 1.11568;
-static const float massXi = 1.32171;
-
 static const AxisSpec ptAxis{50, 0.f, 50.f};
 static const AxisSpec pAxis{50, 0.f, 10.f};
 static const AxisSpec kstarAxis{100, 0.f, 1.f};
@@ -218,6 +199,8 @@ class HfFilterHelper
  public:
   /// Default constructor
   HfFilterHelper() = default;
+
+  Service<o2::framework::O2DatabasePDG> mPdgDataBase;
 
   // setters
   void setPtBinsSingleTracks(std::vector<double> ptBins) { mPtBinsTracks = ptBins; }
@@ -286,8 +269,8 @@ class HfFilterHelper
   int8_t isBDTSelected(const T& scores, const U& thresholdBDTScores);
 
   // helpers
-  template <typename T>
-  T computeRelativeMomentum(const std::array<T, 3>& pTrack, const std::array<T, 3>& CharmCandMomentum, const T& CharmMass);
+  template <typename T, typename T2>
+  T computeRelativeMomentum(const std::array<T, 3>& pTrack, const std::array<T, 3>& CharmCandMomentum, const T2& CharmMass);
   template <typename T>
   int computeNumberOfCandidates(std::vector<std::vector<T>> indices);
 
@@ -507,13 +490,13 @@ inline int8_t HfFilterHelper::isDsPreselected(const P& pTrackSameChargeFirst, co
   }
 
   // check delta-mass for phi resonance
-  auto invMassKKFirst = RecoDecay::m(std::array{pTrackSameChargeFirst, pTrackOppositeCharge}, std::array{massK, massK});
-  auto invMassKKSecond = RecoDecay::m(std::array{pTrackSameChargeSecond, pTrackOppositeCharge}, std::array{massK, massK});
+  auto invMassKKFirst = RecoDecay::m(std::array{pTrackSameChargeFirst, pTrackOppositeCharge}, std::array{mPdgDataBase->Mass(321), mPdgDataBase->Mass(321)});
+  auto invMassKKSecond = RecoDecay::m(std::array{pTrackSameChargeSecond, pTrackOppositeCharge}, std::array{mPdgDataBase->Mass(321), mPdgDataBase->Mass(321)});
 
-  if (std::fabs(invMassKKFirst - massPhi) < 0.02) {
+  if (std::fabs(invMassKKFirst - mPdgDataBase->Mass(333)) < 0.02) {
     retValue |= BIT(0);
   }
-  if (std::fabs(invMassKKSecond - massPhi) < 0.02) {
+  if (std::fabs(invMassKKSecond - mPdgDataBase->Mass(333)) < 0.02) {
     retValue |= BIT(1);
   }
 
@@ -597,20 +580,20 @@ inline int8_t HfFilterHelper::isSelectedD0InMassRange(const T& pTrackPos, const 
 {
   int8_t retValue = 0;
   if (TESTBIT(isSelected, 0)) {
-    auto invMassD0 = RecoDecay::m(std::array{pTrackPos, pTrackNeg}, std::array{massPi, massK});
+    auto invMassD0 = RecoDecay::m(std::array{pTrackPos, pTrackNeg}, std::array{mPdgDataBase->Mass(211), mPdgDataBase->Mass(321)});
     if (activateQA) {
       hMassVsPt->Fill(ptD, invMassD0);
     }
-    if (std::fabs(invMassD0 - massD0) < mDeltaMassCharmHadForBeauty || ptD > 10) {
+    if (std::fabs(invMassD0 - mPdgDataBase->Mass(421)) < mDeltaMassCharmHadForBeauty || ptD > 10) {
       retValue |= BIT(0);
     }
   }
   if (TESTBIT(isSelected, 1)) {
-    auto invMassD0bar = RecoDecay::m(std::array{pTrackPos, pTrackNeg}, std::array{massK, massPi});
+    auto invMassD0bar = RecoDecay::m(std::array{pTrackPos, pTrackNeg}, std::array{mPdgDataBase->Mass(321), mPdgDataBase->Mass(211)});
     if (activateQA) {
       hMassVsPt->Fill(ptD, invMassD0bar);
     }
-    if (std::fabs(invMassD0bar - massD0) < mDeltaMassCharmHadForBeauty || ptD > 10) {
+    if (std::fabs(invMassD0bar - mPdgDataBase->Mass(421)) < mDeltaMassCharmHadForBeauty || ptD > 10) {
       retValue |= BIT(1);
     }
   }
@@ -629,12 +612,12 @@ inline int8_t HfFilterHelper::isSelectedD0InMassRange(const T& pTrackPos, const 
 template <typename T, typename H2>
 inline int8_t HfFilterHelper::isSelectedDplusInMassRange(const T& pTrackSameChargeFirst, const T& pTrackSameChargeSecond, const T& pTrackOppositeCharge, const float& ptD, const int& activateQA, H2 hMassVsPt)
 {
-  auto invMassDplus = RecoDecay::m(std::array{pTrackSameChargeFirst, pTrackSameChargeSecond, pTrackOppositeCharge}, std::array{massPi, massPi, massK});
+  auto invMassDplus = RecoDecay::m(std::array{pTrackSameChargeFirst, pTrackSameChargeSecond, pTrackOppositeCharge}, std::array{mPdgDataBase->Mass(211), mPdgDataBase->Mass(211), mPdgDataBase->Mass(321)});
   if (activateQA) {
     hMassVsPt->Fill(ptD, invMassDplus);
   }
 
-  if (std::fabs(invMassDplus - massDPlus) > mDeltaMassCharmHadForBeauty && ptD > 0) {
+  if (std::fabs(invMassDplus - mPdgDataBase->Mass(411)) > mDeltaMassCharmHadForBeauty && ptD > 0) {
     return 0;
   }
 
@@ -655,20 +638,20 @@ inline int8_t HfFilterHelper::isSelectedDsInMassRange(const T& pTrackSameChargeF
 {
   int8_t retValue = 0;
   if (TESTBIT(isSelected, 0)) {
-    auto invMassDsToKKPi = RecoDecay::m(std::array{pTrackSameChargeFirst, pTrackOppositeCharge, pTrackSameChargeSecond}, std::array{massK, massK, massPi});
+    auto invMassDsToKKPi = RecoDecay::m(std::array{pTrackSameChargeFirst, pTrackOppositeCharge, pTrackSameChargeSecond}, std::array{mPdgDataBase->Mass(321), mPdgDataBase->Mass(321), mPdgDataBase->Mass(211)});
     if (activateQA) {
       hMassVsPt->Fill(ptD, invMassDsToKKPi);
     }
-    if (std::fabs(invMassDsToKKPi - massDs) < mDeltaMassCharmHadForBeauty || ptD > 10) {
+    if (std::fabs(invMassDsToKKPi - mPdgDataBase->Mass(431)) < mDeltaMassCharmHadForBeauty || ptD > 10) {
       retValue |= BIT(0);
     }
   }
   if (TESTBIT(isSelected, 1)) {
-    auto invMassDsToPiKK = RecoDecay::m(std::array{pTrackSameChargeFirst, pTrackOppositeCharge, pTrackSameChargeSecond}, std::array{massPi, massK, massK});
+    auto invMassDsToPiKK = RecoDecay::m(std::array{pTrackSameChargeFirst, pTrackOppositeCharge, pTrackSameChargeSecond}, std::array{mPdgDataBase->Mass(211), mPdgDataBase->Mass(321), mPdgDataBase->Mass(321)});
     if (activateQA) {
       hMassVsPt->Fill(ptD, invMassDsToPiKK);
     }
-    if (std::fabs(invMassDsToPiKK - massDs) < mDeltaMassCharmHadForBeauty || ptD > 10) {
+    if (std::fabs(invMassDsToPiKK - mPdgDataBase->Mass(431)) < mDeltaMassCharmHadForBeauty || ptD > 10) {
       retValue |= BIT(1);
     }
   }
@@ -690,20 +673,20 @@ inline int8_t HfFilterHelper::isSelectedLcInMassRange(const T& pTrackSameChargeF
 {
   int8_t retValue = 0;
   if (TESTBIT(isSelected, 0)) {
-    auto invMassLcToPKPi = RecoDecay::m(std::array{pTrackSameChargeFirst, pTrackOppositeCharge, pTrackSameChargeSecond}, std::array{massProton, massK, massPi});
+    auto invMassLcToPKPi = RecoDecay::m(std::array{pTrackSameChargeFirst, pTrackOppositeCharge, pTrackSameChargeSecond}, std::array{mPdgDataBase->Mass(2212), mPdgDataBase->Mass(321), mPdgDataBase->Mass(211)});
     if (activateQA) {
       hMassVsPt->Fill(ptLc, invMassLcToPKPi);
     }
-    if (std::fabs(invMassLcToPKPi - massLc) < mDeltaMassCharmHadForBeauty || ptLc > 10) {
+    if (std::fabs(invMassLcToPKPi - mPdgDataBase->Mass(4122)) < mDeltaMassCharmHadForBeauty || ptLc > 10) {
       retValue |= BIT(0);
     }
   }
   if (TESTBIT(isSelected, 1)) {
-    auto invMassLcToPiKP = RecoDecay::m(std::array{pTrackSameChargeFirst, pTrackOppositeCharge, pTrackSameChargeSecond}, std::array{massPi, massK, massProton});
+    auto invMassLcToPiKP = RecoDecay::m(std::array{pTrackSameChargeFirst, pTrackOppositeCharge, pTrackSameChargeSecond}, std::array{mPdgDataBase->Mass(211), mPdgDataBase->Mass(321), mPdgDataBase->Mass(2212)});
     if (activateQA) {
       hMassVsPt->Fill(ptLc, invMassLcToPiKP);
     }
-    if (std::fabs(invMassLcToPiKP - massLc) < mDeltaMassCharmHadForBeauty || ptLc > 10) {
+    if (std::fabs(invMassLcToPiKP - mPdgDataBase->Mass(4122)) < mDeltaMassCharmHadForBeauty || ptLc > 10) {
       retValue |= BIT(1);
     }
   }
@@ -725,20 +708,20 @@ inline int8_t HfFilterHelper::isSelectedXicInMassRange(const T& pTrackSameCharge
 {
   int8_t retValue = 0;
   if (TESTBIT(isSelected, 0)) {
-    auto invMassXicToPKPi = RecoDecay::m(std::array{pTrackSameChargeFirst, pTrackOppositeCharge, pTrackSameChargeSecond}, std::array{massProton, massK, massPi});
+    auto invMassXicToPKPi = RecoDecay::m(std::array{pTrackSameChargeFirst, pTrackOppositeCharge, pTrackSameChargeSecond}, std::array{mPdgDataBase->Mass(2212), mPdgDataBase->Mass(321), mPdgDataBase->Mass(211)});
     if (activateQA) {
       hMassVsPt->Fill(ptXic, invMassXicToPKPi);
     }
-    if (std::fabs(invMassXicToPKPi - massXic) < mDeltaMassCharmHadForBeauty || ptXic > 10) {
+    if (std::fabs(invMassXicToPKPi - mPdgDataBase->Mass(4232)) < mDeltaMassCharmHadForBeauty || ptXic > 10) {
       retValue |= BIT(0);
     }
   }
   if (TESTBIT(isSelected, 1)) {
-    auto invMassXicToPiKP = RecoDecay::m(std::array{pTrackSameChargeFirst, pTrackOppositeCharge, pTrackSameChargeSecond}, std::array{massPi, massK, massProton});
+    auto invMassXicToPiKP = RecoDecay::m(std::array{pTrackSameChargeFirst, pTrackOppositeCharge, pTrackSameChargeSecond}, std::array{mPdgDataBase->Mass(211), mPdgDataBase->Mass(321), mPdgDataBase->Mass(2212)});
     if (activateQA) {
       hMassVsPt->Fill(ptXic, invMassXicToPiKP);
     }
-    if (std::fabs(invMassXicToPiKP - massXic) < mDeltaMassCharmHadForBeauty || ptXic > 10) {
+    if (std::fabs(invMassXicToPiKP - mPdgDataBase->Mass(4232)) < mDeltaMassCharmHadForBeauty || ptXic > 10) {
       retValue |= BIT(1);
     }
   }
@@ -815,19 +798,19 @@ inline int8_t HfFilterHelper::isSelectedV0(const V0& v0, const array<T, 2>& dauT
       hV0Selected->Fill(4., kPhoton);
     }
   }
-  if (TESTBIT(isSelected, kK0S) && std::fabs(v0.mK0Short() - massK0S) > mDeltaMassK0s) {
+  if (TESTBIT(isSelected, kK0S) && std::fabs(v0.mK0Short() - mPdgDataBase->Mass(310)) > mDeltaMassK0s) {
     CLRBIT(isSelected, kK0S);
     if (activateQA > 1) {
       hV0Selected->Fill(4., kK0S);
     }
   }
-  if (TESTBIT(isSelected, kLambda) && std::fabs(v0.mLambda() - massLambda) > mDeltaMassLambda) {
+  if (TESTBIT(isSelected, kLambda) && std::fabs(v0.mLambda() - mPdgDataBase->Mass(3122)) > mDeltaMassLambda) {
     CLRBIT(isSelected, kLambda);
     if (activateQA > 1) {
       hV0Selected->Fill(4., kLambda);
     }
   }
-  if (TESTBIT(isSelected, kAntiLambda) && std::fabs(v0.mAntiLambda() - massLambda) > mDeltaMassLambda) {
+  if (TESTBIT(isSelected, kAntiLambda) && std::fabs(v0.mAntiLambda() - mPdgDataBase->Mass(3122)) > mDeltaMassLambda) {
     CLRBIT(isSelected, kAntiLambda);
     if (activateQA > 1) {
       hV0Selected->Fill(4., kAntiLambda);
@@ -948,12 +931,12 @@ inline bool HfFilterHelper::isSelectedCascade(const Casc& casc, const V0& v0, co
   }
 
   // cascade mass
-  if (std::fabs(casc.mXi() - massXi) > mDeltaMassXi) {
+  if (std::fabs(casc.mXi() - mPdgDataBase->Mass(3312)) > mDeltaMassXi) {
     return false;
   }
 
   // V0 mass
-  if (std::fabs(casc.mLambda() - massLambda) > mDeltaMassLambdaFromXi) {
+  if (std::fabs(casc.mLambda() - mPdgDataBase->Mass(3122)) > mDeltaMassLambdaFromXi) {
     return false;
   }
 
@@ -1113,10 +1096,10 @@ inline int8_t HfFilterHelper::isBDTSelected(const T& scores, const U& thresholdB
 /// \param CharmCandMomentum is the three momentum of a charm candidate
 /// \param CharmMass is the mass of the charm hadron
 /// \return relative momentum of pair
-template <typename T>
-inline T HfFilterHelper::computeRelativeMomentum(const std::array<T, 3>& pTrack, const std::array<T, 3>& CharmCandMomentum, const T& CharmMass)
+template <typename T, typename T2>
+inline T HfFilterHelper::computeRelativeMomentum(const std::array<T, 3>& pTrack, const std::array<T, 3>& CharmCandMomentum, const T2& CharmMass)
 {
-  ROOT::Math::PxPyPzMVector part1(pTrack[0], pTrack[1], pTrack[2], massProton);
+  ROOT::Math::PxPyPzMVector part1(pTrack[0], pTrack[1], pTrack[2], mPdgDataBase->Mass(2212));
   ROOT::Math::PxPyPzMVector part2(CharmCandMomentum[0], CharmCandMomentum[1], CharmCandMomentum[2], CharmMass);
 
   ROOT::Math::PxPyPzMVector trackSum = part1 + part2;
@@ -1384,11 +1367,11 @@ inline double HfFilterHelper::getTPCSplineCalib(const T& track, const int& pidSp
 {
   float mMassPar{0.};
   if (pidSpecies == kPi || pidSpecies == kAntiPi) {
-    mMassPar = massPi;
+    mMassPar = mPdgDataBase->Mass(211);
   } else if (pidSpecies == kKa || pidSpecies == kAntiKa) {
-    mMassPar = massK;
+    mMassPar = mPdgDataBase->Mass(321);
   } else if (pidSpecies == kPr || pidSpecies == kAntiPr) {
-    mMassPar = massProton;
+    mMassPar = mPdgDataBase->Mass(2212);
   } else {
     LOGP(fatal, "TPC recalibrated Nsigma requested for unknown particle species, return 999");
     return 999.;
