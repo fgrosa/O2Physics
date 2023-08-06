@@ -75,7 +75,6 @@ struct HfFilter { // Main struct for HF triggers
   Configurable<bool> requireCharmMassForFemto{"requireCharmMassForFemto", false, "Flags to enable/disable cut on charm-hadron invariant-mass window for femto"};
   Configurable<float> ptThresholdForFemtoPid{"ptThresholdForFemtoPid", 8., "pT threshold for changing strategy of proton PID in femto triggers"};
 
-
   // double charm
   Configurable<LabeledArray<int>> enableDoubleCharmChannels{"enableDoubleCharmChannels", {activeDoubleCharmChannels[0], 1, 3, labelsEmpty, labelsColumnsDoubleCharmChannels}, "Flags to enable/disable double charm channels"};
 
