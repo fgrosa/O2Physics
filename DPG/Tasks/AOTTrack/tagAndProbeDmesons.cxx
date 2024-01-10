@@ -620,7 +620,7 @@ struct ProbeThirdTrack {
     return invMass;
   }
 
-  template<typename TTrackIndices, typename TTrack, typename TTracks>
+  template <typename TTrackIndices, typename TTrack, typename TTracks>
   void loopOverThirdTrack(TTrackIndices const& groupedTrackThirdIndices, TTracks const& tracks, TTrack const& trackFirst, TTrack const& trackSecond, const uint8_t channel)
   {
     for (const auto& trackIndex : groupedTrackThirdIndices) {
