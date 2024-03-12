@@ -244,13 +244,19 @@ struct TaskPolarisationCharmHadrons {
         pyCharmHad = candidate.pyDstar();
         pzCharmHad = candidate.pzDstar();
         massDau = massPi; // (*)
-        invMassCharmHad = (candidate.signSoftPi() > 0) ? candidate.invMassDstar() : candidate.invMassAntiDstar();
-        invMassCharmHadForSparse = (candidate.signSoftPi() > 0) ? (invMassCharmHad - candidate.invMassD0()) : (invMassCharmHad - candidate.invMassD0Bar()); // different for D*
+        auto sign = candidate.signSoftPi();
+        if (sign > 0) {
+          invMassCharmHad = candidate.invMassDstar();
+          invMassCharmHadForSparse = invMassCharmHad - candidate.invMassD0();
+        } else {
+          invMassCharmHad = candidate.invMassAntiDstar();
+          invMassCharmHadForSparse = invMassCharmHad - candidate.invMassD0Bar();
+        }
         rapidity = candidate.y(massDstar);
         if constexpr (withMl) {
-          outputMl[0] = -1.; // not yet implemented in the selector
-          outputMl[1] = -1.; // not yet implemented in the selector
-          outputMl[2] = -1.; // not yet implemented in the selector
+          outputMl[0] = candidate.mlProbDstarToD0Pi()[0];
+          outputMl[1] = candidate.mlProbDstarToD0Pi()[1];
+          outputMl[2] = candidate.mlProbDstarToD0Pi()[2];
         }
       } else if constexpr (channel == charm_polarisation::DecayChannel::LcToPKPi) {
         // Lc->pKpi analysis
@@ -446,11 +452,11 @@ struct TaskPolarisationCharmHadrons {
   PROCESS_SWITCH(TaskPolarisationCharmHadrons, processDstar, "Process Dstar candidates without ML", true);
 
   // Dstar with ML cuts
-  void processDstarWithMl(soa::Filtered<CandDstarWSelFlag>::iterator const&)
+  void processDstarWithMl(soa::Filtered<soa::Join<CandDstarWSelFlag, aod::HfMlDstarToD0Pi>>::iterator const& dstarCandidate)
   {
-    // DUMMY
+    runPolarisationAnalysis<charm_polarisation::DecayChannel::DstarToDzeroPi, true>(dstarCandidate);
   }
-  PROCESS_SWITCH(TaskPolarisationCharmHadrons, processDstarWithMl, "Process Dstar candidates with ML (DUMMY)", false);
+  PROCESS_SWITCH(TaskPolarisationCharmHadrons, processDstarWithMl, "Process Dstar candidates with ML", false);
 
   ////////////////////////////
   //   Lc->pKpi analysis   ///
