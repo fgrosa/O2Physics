@@ -561,54 +561,54 @@ struct BcSelectionTask {
         histos.get<TH1>(HIST("hLumiTVX"))->Fill(srun, 1. / csTVX);
         if (goodCBT) {
           histos.get<TH1>(HIST("hCounterTVX_CBT"))->Fill(srun, 1);
-          histos.get<TH1>(HIST("hLumiTVX_CBT"))->Fill(srun, 1. / csTVX);  
+          histos.get<TH1>(HIST("hLumiTVX_CBT"))->Fill(srun, 1. / csTVX);
         }
         if (goodCBThadronPID) {
           histos.get<TH1>(HIST("hCounterTVX_CBT_hadronPID"))->Fill(srun, 1);
-          histos.get<TH1>(HIST("hLumiTVX_CBT_hadronPID"))->Fill(srun, 1. / csTVX);  
+          histos.get<TH1>(HIST("hLumiTVX_CBT_hadronPID"))->Fill(srun, 1. / csTVX);
         }
         if (goodCBTelectronPID) {
           histos.get<TH1>(HIST("hCounterTVX_CBT_electronPID"))->Fill(srun, 1);
-          histos.get<TH1>(HIST("hLumiTVX_CBT_electronPID"))->Fill(srun, 1. / csTVX);  
+          histos.get<TH1>(HIST("hLumiTVX_CBT_electronPID"))->Fill(srun, 1. / csTVX);
         }
         if (goodCBTcalo) {
           histos.get<TH1>(HIST("hCounterTVX_CBT_calo"))->Fill(srun, 1);
-          histos.get<TH1>(HIST("hLumiTVX_CBT_calo"))->Fill(srun, 1. / csTVX);  
+          histos.get<TH1>(HIST("hLumiTVX_CBT_calo"))->Fill(srun, 1. / csTVX);
         }
         if (goodCBTmuon) {
           histos.get<TH1>(HIST("hCounterTVX_CBT_muon"))->Fill(srun, 1);
-          histos.get<TH1>(HIST("hLumiTVX_CBT_muon"))->Fill(srun, 1. / csTVX);  
+          histos.get<TH1>(HIST("hLumiTVX_CBT_muon"))->Fill(srun, 1. / csTVX);
         }
         if (goodCBTmuonGlo) {
           histos.get<TH1>(HIST("hCounterTVX_CBT_muon_glo"))->Fill(srun, 1);
-          histos.get<TH1>(HIST("hLumiTVX_CBT_muon_glo"))->Fill(srun, 1. / csTVX);  
+          histos.get<TH1>(HIST("hLumiTVX_CBT_muon_glo"))->Fill(srun, 1. / csTVX);
         }
         if (TESTBIT(selection, kNoITSROFrameBorder) && TESTBIT(selection, kNoTimeFrameBorder)) {
           histos.get<TH1>(HIST("hCounterTVXafterBCcuts"))->Fill(srun, 1);
           histos.get<TH1>(HIST("hLumiTVXafterBCcuts"))->Fill(srun, 1. / csTVX);
           if (goodCBT) {
             histos.get<TH1>(HIST("hCounterTVXafterBCcuts_CBT"))->Fill(srun, 1);
-            histos.get<TH1>(HIST("hLumiTVXafterBCcuts_CBT"))->Fill(srun, 1. / csTVX);  
+            histos.get<TH1>(HIST("hLumiTVXafterBCcuts_CBT"))->Fill(srun, 1. / csTVX);
           }
           if (goodCBThadronPID) {
             histos.get<TH1>(HIST("hCounterTVXafterBCcuts_CBT_hadronPID"))->Fill(srun, 1);
-            histos.get<TH1>(HIST("hLumiTVXafterBCcuts_CBT_hadronPID"))->Fill(srun, 1. / csTVX);  
+            histos.get<TH1>(HIST("hLumiTVXafterBCcuts_CBT_hadronPID"))->Fill(srun, 1. / csTVX);
           }
           if (goodCBTelectronPID) {
             histos.get<TH1>(HIST("hCounterTVXafterBCcuts_CBT_electronPID"))->Fill(srun, 1);
-            histos.get<TH1>(HIST("hLumiTVXafterBCcuts_CBT_electronPID"))->Fill(srun, 1. / csTVX);  
+            histos.get<TH1>(HIST("hLumiTVXafterBCcuts_CBT_electronPID"))->Fill(srun, 1. / csTVX);
           }
           if (goodCBTcalo) {
             histos.get<TH1>(HIST("hCounterTVXafterBCcuts_CBT_calo"))->Fill(srun, 1);
-            histos.get<TH1>(HIST("hLumiTVXafterBCcuts_CBT_calo"))->Fill(srun, 1. / csTVX);  
+            histos.get<TH1>(HIST("hLumiTVXafterBCcuts_CBT_calo"))->Fill(srun, 1. / csTVX);
           }
           if (goodCBTmuon) {
             histos.get<TH1>(HIST("hCounterTVXafterBCcuts_CBT_muon"))->Fill(srun, 1);
-            histos.get<TH1>(HIST("hLumiTVXafterBCcuts_CBT_muon"))->Fill(srun, 1. / csTVX);  
+            histos.get<TH1>(HIST("hLumiTVXafterBCcuts_CBT_muon"))->Fill(srun, 1. / csTVX);
           }
           if (goodCBTmuonGlo) {
             histos.get<TH1>(HIST("hCounterTVXafterBCcuts_CBT_muon_glo"))->Fill(srun, 1);
-            histos.get<TH1>(HIST("hLumiTVXafterBCcuts_CBT_muon_glo"))->Fill(srun, 1. / csTVX);  
+            histos.get<TH1>(HIST("hLumiTVXafterBCcuts_CBT_muon_glo"))->Fill(srun, 1. / csTVX);
           }
         }
       }

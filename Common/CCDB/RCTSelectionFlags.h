@@ -206,7 +206,7 @@ class RCTFlagsChecker : public o2::utils::EnumFlags<RCTSelectionFlags>
     return checkTable(table);
   }
 
-  template<typename T>
+  template <typename T>
   bool checkFlags(T& tableBits)
   {
     if (!any()) {
