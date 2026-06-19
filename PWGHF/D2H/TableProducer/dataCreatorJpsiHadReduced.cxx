@@ -230,14 +230,14 @@ struct HfDataCreatorJpsiHadReduced {
     labelsEvents[Event::NoCharmHadPiSelected] = "without CharmHad-Pi pairs";
     labelsEvents[Event::CharmHadPiSelected] = "with CharmHad-Pi pairs";
     static const AxisSpec axisEvents = {NumBinsEvents, 0.5, NumBinsEvents + 0.5, ""};
-    registry.add("hEvents", "Events;;entries", HistType::kTH1F, {axisEvents});
+    registry.add("hEvents", "Events;;entries", HistType::kTH1D, {axisEvents});
     for (int iBin = 0; iBin < NumBinsEvents; iBin++) {
       registry.get<TH1>(HIST("hEvents"))->GetXaxis()->SetBinLabel(iBin + 1, labelsEvents[iBin].data());
     }
 
-    registry.add("hMassJpsi", "J/Psi mass;#it{M}_{#mu#mu} (GeV/#it{c}^{2});Counts", {HistType::kTH1F, {{600, 2.8, 3.4, "#it{p}_{T} (GeV/#it{c})"}}});
-    registry.add("hPtJpsi", "J/Psi #it{p}_{T};#it{p}_{T} (GeV/#it{c});Counts", {HistType::kTH1F, {{(std::vector<double>)binsPt, "#it{p}_{T} (GeV/#it{c})"}}});
-    registry.add("hCpaJpsi", "J/Psi cos#theta_{p};J/Psi cos#theta_{p};Counts", {HistType::kTH1F, {{200, -1., 1, "J/Psi cos#theta_{p}"}}});
+    registry.add("hMassJpsi", "J/Psi mass;#it{M}_{#mu#mu} (GeV/#it{c}^{2});Counts", {HistType::kTH1D, {{600, 2.8, 3.4, "#it{p}_{T} (GeV/#it{c})"}}});
+    registry.add("hPtJpsi", "J/Psi #it{p}_{T};#it{p}_{T} (GeV/#it{c});Counts", {HistType::kTH1D, {{(std::vector<double>)binsPt, "#it{p}_{T} (GeV/#it{c})"}}});
+    registry.add("hCpaJpsi", "J/Psi cos#theta_{p};J/Psi cos#theta_{p};Counts", {HistType::kTH1D, {{200, -1., 1, "J/Psi cos#theta_{p}"}}});
     std::shared_ptr<TH1> hFitCandidatesJpsi = registry.add<TH1>("hFitCandidatesJpsi", "Jpsi candidate counter", {HistType::kTH1D, {axisCands}});
     std::shared_ptr<TH1> hFitCandidatesBPlus = registry.add<TH1>("hFitCandidatesBPlus", "hFitCandidatesBPlus candidate counter", {HistType::kTH1D, {axisCands}});
     std::shared_ptr<TH1> hFitCandidatesB0 = registry.add<TH1>("hFitCandidatesB0", "hFitCandidatesB0 candidate counter", {HistType::kTH1D, {axisCands}});
@@ -247,18 +247,18 @@ struct HfDataCreatorJpsiHadReduced {
     setLabelHistoCands(hFitCandidatesB0);
     setLabelHistoCands(hFitCandidatesBS);
     if (doprocessJpsiKData || doprocessJpsiKMc) {
-      registry.add("hPtKaon", "Kaon #it{p}_{T};#it{p}_{T} (GeV/#it{c});Counts", {HistType::kTH1F, {{100, 0., 10.}}});
-      registry.add("hMassJpsiKaon", "J/Psi Kaon mass;#it{M}_{J/#PsiK} (GeV/#it{c}^{2});Counts", {HistType::kTH1F, {{800, 4.9, 5.7}}});
+      registry.add("hPtKaon", "Kaon #it{p}_{T};#it{p}_{T} (GeV/#it{c});Counts", {HistType::kTH1D, {{100, 0., 10.}}});
+      registry.add("hMassJpsiKaon", "J/Psi Kaon mass;#it{M}_{J/#PsiK} (GeV/#it{c}^{2});Counts", {HistType::kTH1D, {{800, 4.9, 5.7}}});
     } else if (doprocessJpsiK0StarData || doprocessJpsiK0StarMc) {
-      registry.add("hPtK0Star", "K*0 #it{p}_{T};#it{p}_{T} (GeV/#it{c});Counts", {HistType::kTH1F, {{100, 0., 10.}}});
-      registry.add("hMassK0Star", "K*0 mass;#it{M}_{#piK} (GeV/#it{c}^{2});Counts", {HistType::kTH1F, {{200, 0.9, 1.2}}});
-      registry.add("hMassJpsiK0Star", "J/Psi K*0 mass;#it{M}_{J/#PsiK*0} (GeV/#it{c}^{2});Counts", {HistType::kTH1F, {{800, 4.9, 5.7}}});
+      registry.add("hPtK0Star", "K*0 #it{p}_{T};#it{p}_{T} (GeV/#it{c});Counts", {HistType::kTH1D, {{100, 0., 10.}}});
+      registry.add("hMassK0Star", "K*0 mass;#it{M}_{#piK} (GeV/#it{c}^{2});Counts", {HistType::kTH1D, {{200, 0.7, 1.1}}});
+      registry.add("hMassJpsiK0Star", "J/Psi K*0 mass;#it{M}_{J/#PsiK*0} (GeV/#it{c}^{2});Counts", {HistType::kTH1D, {{800, 4.9, 5.7}}});
       std::shared_ptr<TH1> hFitCandidatesK0Star = registry.add<TH1>("hFitCandidatesK0Star", "K*0 candidate counter", {HistType::kTH1D, {axisCands}});
       setLabelHistoCands(hFitCandidatesK0Star);
     } else if (doprocessJpsiPhiData || doprocessJpsiPhiMc) {
-      registry.add("hPtPhi", "Phi #it{p}_{T};#it{p}_{T} (GeV/#it{c});Counts", {HistType::kTH1F, {{100, 0., 10.}}});
-      registry.add("hMassPhi", "Phi mass;#it{M}_{KK} (GeV/#it{c}^{2});Counts", {HistType::kTH1F, {{200, 0.9, 1.2}}});
-      registry.add("hMassJpsiPhi", "J/Psi Phi mass;#it{M}_{J/#Psi#phi} (GeV/#it{c}^{2});Counts", {HistType::kTH1F, {{800, 4.9, 5.7}}});
+      registry.add("hPtPhi", "Phi #it{p}_{T};#it{p}_{T} (GeV/#it{c});Counts", {HistType::kTH1D, {{100, 0., 10.}}});
+      registry.add("hMassPhi", "Phi mass;#it{M}_{KK} (GeV/#it{c}^{2});Counts", {HistType::kTH1D, {{200, 0.9, 1.2}}});
+      registry.add("hMassJpsiPhi", "J/Psi Phi mass;#it{M}_{J/#Psi#phi} (GeV/#it{c}^{2});Counts", {HistType::kTH1D, {{800, 4.9, 5.7}}});
       std::shared_ptr<TH1> hFitCandidatesPhi = registry.add<TH1>("hFitCandidatesPhi", "Phi candidate counter", {HistType::kTH1D, {axisCands}});
       setLabelHistoCands(hFitCandidatesPhi);
     }
@@ -1187,8 +1187,6 @@ struct HfDataCreatorJpsiHadReduced {
         }
       } // kaon loop
       if (fillHfCandJpsi) { // fill Jpsi table only once per Jpsi candidate
-        double invMassJpsi{0.};
-        invMassJpsi = HfHelper::invMassJpsiToMuMu(candidate);
         hfJpsi(trackPos.globalIndex(), trackNeg.globalIndex(),
                indexHfReducedCollision,
                candidate.xSecondaryVertex(), candidate.ySecondaryVertex(), candidate.zSecondaryVertex(),

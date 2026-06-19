@@ -275,7 +275,7 @@ struct HfCandidateCreatorBToJpsiReduced {
         } else if constexpr (DecChannel == DecayChannel::B0ToJpsiK0Star) {
           for (const auto& trackLf1 : tracksLfDau1ThisCollision) {
             // this track is among daughters
-            if (trackLf1.trackId() == candJpsi.prongPosId() || trackLf1.trackId() == candJpsi.prongNegId()) {
+            if (trackLf1.trackId() == candJpsi.prongPosId() || trackLf1.trackId() == candJpsi.prongNegId() || trackLf1.signed1Pt() * trackLf0.signed1Pt() > 0) {
               continue;
             }
             auto trackParCovLf1 = getTrackParCov(trackLf1);
@@ -352,7 +352,7 @@ struct HfCandidateCreatorBToJpsiReduced {
         } else if constexpr (DecChannel == DecayChannel::BsToJpsiPhi) {
           for (const auto& trackLf1 : tracksLfDau1ThisCollision) {
             // this track is among daughters
-            if (trackLf1.trackId() == candJpsi.prongPosId() || trackLf1.trackId() == candJpsi.prongNegId()) {
+            if (trackLf1.trackId() == candJpsi.prongPosId() || trackLf1.trackId() == candJpsi.prongNegId() || trackLf1.signed1Pt() * trackLf0.signed1Pt() > 0) {
               continue;
             }
             auto trackParCovLf1 = getTrackParCov(trackLf1);
