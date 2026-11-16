@@ -617,7 +617,7 @@ struct HfDataCreatorJpsiHadReduced {
       // B0 → J/Psi K0* → (µ+µ-) (K+pi-)
       int indexRec = -1;
       // We set acceptIncompleteReco to true to accept the case of bremsstrahlung
-      indexRec = RecoDecay::getMatchedMCRec<false, false, true, true, true>(particlesMc, std::array{vecDaughtersB[0], vecDaughtersB[1], vecDaughtersB[2], vecDaughtersB[3]}, Pdg::kB0, std::array{-kMuonMinus, +kMuonMinus, +kKPlus, -kPiPlus}, true, &sign, 2 );
+      indexRec = RecoDecay::getMatchedMCRec<false, false, true, true, true>(particlesMc, std::array{vecDaughtersB[0], vecDaughtersB[1], vecDaughtersB[2], vecDaughtersB[3]}, Pdg::kB0, std::array{-kMuonMinus, +kMuonMinus, +kKPlus, -kPiPlus}, true, &sign, 2);
       if (indexRec > -1) {
         const auto& bParticle = particlesMc.rawIteratorAt(indexRec);
         std::vector<int> dauIndices{};
