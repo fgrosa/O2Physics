@@ -524,6 +524,17 @@ struct HfTaskB0ToJpsiK0StarReduced {
       }
     }
 
+    if (sampleReflections && selPiK && selKPi) {
+      float const pseudoRndmB = ptCandB0 * 1000. - static_cast<int64_t>(ptCandB0 * 1000);
+      if (pseudoRndmB < 0.5) {
+        statusB0KPi = -1;
+        selKPi = false;
+      } else {
+        statusB0PiK = -1;
+        selPiK = false;
+      }
+    }
+
     registry.fill(HIST("hMassJpsi"), invMassJpsi, ptJpsi);
     if constexpr (DoMc) {
       if (isSignal) {
@@ -665,15 +676,6 @@ struct HfTaskB0ToJpsiK0StarReduced {
         ptMother,
         swapped);
     };
-
-    if (sampleReflections && statusB0KPi >= selectionFlagB0 && statusB0PiK >= selectionFlagB0) {
-      float const pseudoRndmB = ptCandB0 * 1000. - static_cast<int64_t>(ptCandB0 * 1000);
-      if (pseudoRndmB < 0.5) {
-        statusB0KPi = -1;
-      } else {
-        statusB0PiK = -1;
-      }
-    }
 
     if (statusB0KPi >= selectionFlagB0) {
       fillTable(true);
